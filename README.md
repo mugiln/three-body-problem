@@ -2,7 +2,7 @@
 
 A real-time 3D gravitational simulation of the three-body problem, built from scratch in **C++** and visualized in the browser with **Three.js**.
 
-🔴 **[Live Demo](https://mugiln.github.io/gravitational-simulations)** 🟢 🔵
+ **[Live Demo](https://mugiln.github.io/gravitational-simulations)** 
 
 ---
 
