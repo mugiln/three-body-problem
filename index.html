@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Three Body Problem</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    color: #fff;
+    font-family: 'Share Tech Mono', monospace;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  #canvas-container {
+    position: fixed;
+    inset: 0;
+  }
+
+  /* Top title */
+  #title {
+    position: fixed;
+    top: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: 0.25em;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255,255,255,0.4);
+    z-index: 10;
+    white-space: nowrap;
+  }
+
+  /* Scenario buttons */
+  #controls {
+    position: fixed;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 10;
+  }
+
+  .btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    padding: 10px 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(0,0,0,0.6);
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    backdrop-filter: blur(8px);
+  }
+
+  .btn:hover {
+    border-color: rgba(255,255,255,0.6);
+    color: #fff;
+  }
+
+  .btn.active {
+    border-color: #fff;
+    color: #fff;
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 0 18px rgba(255,255,255,0.15);
+  }
+
+  /* Info panel */
+  #info {
+    position: fixed;
+    top: 80px;
+    left: 32px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .body-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    opacity: 0.8;
+  }
+
+  .body-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  /* Loading */
+  #loading {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    gap: 20px;
+    transition: opacity 0.8s;
+  }
+
+  #loading h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.3em;
+    font-weight: 400;
+  }
+
+  #loading-bar-wrap {
+    width: 260px;
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+  }
+
+  #loading-bar {
+    height: 1px;
+    background: #fff;
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  #loading-text {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* hint */
+  #hint {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.2);
+    z-index: 10;
+    white-space: nowrap;
+  }
+
+  /* Speed control */
+  #speed-wrap {
+    position: fixed;
+    top: 80px;
+    right: 32px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  #speed-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.35);
+  }
+
+  #speed-slider {
+    -webkit-appearance: none;
+    width: 100px;
+    height: 1px;
+    background: rgba(255,255,255,0.2);
+    outline: none;
+  }
+
+  #speed-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <h2>THREE BODY PROBLEM</h2>
+  <div id="loading-bar-wrap"><div id="loading-bar"></div></div>
+  <div id="loading-text">INITIALIZING SIMULATION</div>
+</div>
+
+<div id="canvas-container"></div>
+
+<div id="title">THREE · BODY · PROBLEM</div>
+
+<div id="info">
+  <div class="body-indicator"><div class="body-dot" style="background:#ff4444;box-shadow:0 0 8px #ff4444"></div>BODY 01</div>
+  <div class="body-indicator"><div class="body-dot" style="background:#44ff88;box-shadow:0 0 8px #44ff88"></div>BODY 02</div>
+  <div class="body-indicator"><div class="body-dot" style="background:#4488ff;box-shadow:0 0 8px #4488ff"></div>BODY 03</div>
+</div>
+
+<div id="speed-wrap">
+  <div id="speed-label">PLAYBACK SPEED</div>
+  <input type="range" id="speed-slider" min="1" max="20" value="5">
+</div>
+
+<div id="controls">
+  <button class="btn active" onclick="loadScenario('figure-eight')">FIGURE EIGHT</button>
+  <button class="btn" onclick="loadScenario('lagrange')">LAGRANGE</button>
+  <button class="btn" onclick="loadScenario('chaotic')">CHAOTIC</button>
+  <button class="btn" onclick="loadScenario('euler')">EULER</button>
+</div>
+
+<div id="hint">DRAG TO ROTATE &nbsp;·&nbsp; SCROLL TO ZOOM</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ── Scene setup ──────────────────────────────────────────────
+const container = document.getElementById('canvas-container');
+const renderer  = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+container.appendChild(renderer.domElement);
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.001, 1000);
+camera.position.set(0, 0, 5);
+
+// Starfield
+const starGeo = new THREE.BufferGeometry();
+const starVerts = [];
+for (let i = 0; i < 6000; i++) {
+  starVerts.push((Math.random()-0.5)*400, (Math.random()-0.5)*400, (Math.random()-0.5)*400);
+}
+starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVerts, 3));
+scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.12, transparent: true, opacity: 0.5 })));
+
+// ── Orbit controls (manual) ───────────────────────────────────
+let isDragging = false, prevMouse = {x:0, y:0};
+let spherical = { theta: 0, phi: Math.PI/2, r: 5 };
+
+renderer.domElement.addEventListener('mousedown', e => { isDragging = true; prevMouse = {x:e.clientX, y:e.clientY}; });
+renderer.domElement.addEventListener('mouseup',   () => isDragging = false);
+renderer.domElement.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  const dx = e.clientX - prevMouse.x, dy = e.clientY - prevMouse.y;
+  spherical.theta -= dx * 0.005;
+  spherical.phi   = Math.max(0.1, Math.min(Math.PI-0.1, spherical.phi + dy*0.005));
+  prevMouse = {x:e.clientX, y:e.clientY};
+});
+renderer.domElement.addEventListener('wheel', e => {
+  spherical.r = Math.max(1, Math.min(20, spherical.r + e.deltaY * 0.005));
+});
+// Touch support
+renderer.domElement.addEventListener('touchstart', e => { isDragging = true; prevMouse = {x:e.touches[0].clientX, y:e.touches[0].clientY}; });
+renderer.domElement.addEventListener('touchend',   () => isDragging = false);
+renderer.domElement.addEventListener('touchmove',  e => {
+  const dx = e.touches[0].clientX - prevMouse.x, dy = e.touches[0].clientY - prevMouse.y;
+  spherical.theta -= dx * 0.005;
+  spherical.phi   = Math.max(0.1, Math.min(Math.PI-0.1, spherical.phi + dy*0.005));
+  prevMouse = {x:e.touches[0].clientX, y:e.touches[0].clientY};
+});
+
+function updateCamera() {
+  camera.position.set(
+    spherical.r * Math.sin(spherical.phi) * Math.sin(spherical.theta),
+    spherical.r * Math.cos(spherical.phi),
+    spherical.r * Math.sin(spherical.phi) * Math.cos(spherical.theta)
+  );
+  camera.lookAt(0, 0, 0);
+}
+
+// ── Body colors & materials ───────────────────────────────────
+const COLORS = [0xff4444, 0x44ff88, 0x4488ff];
+const TRAIL_LENGTH = 300;
+
+let bodies3D = [];
+let trailData = [[], [], []];
+let frameIndex = 0;
+let allFrames  = [];
+let animRunning = false;
+let speedSlider = document.getElementById('speed-slider');
+
+function buildBodies() {
+  // Remove old
+  bodies3D.forEach(b => { scene.remove(b.mesh); scene.remove(b.trail); scene.remove(b.glow); });
+  bodies3D = [];
+
+  COLORS.forEach((col, i) => {
+    // Main sphere
+    const geo  = new THREE.SphereGeometry(0.04, 16, 16);
+    const mat  = new THREE.MeshBasicMaterial({ color: col });
+    const mesh = new THREE.Mesh(geo, mat);
+    scene.add(mesh);
+
+    // Glow sprite
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    const grad = ctx.createRadialGradient(32,32,2,32,32,32);
+    const hex = '#' + col.toString(16).padStart(6,'0');
+    grad.addColorStop(0,   hex);
+    grad.addColorStop(0.3, hex + 'aa');
+    grad.addColorStop(1,   'transparent');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,64,64);
+    const tex    = new THREE.CanvasTexture(canvas);
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.9, depthWrite: false }));
+    sprite.scale.set(0.35, 0.35, 1);
+    scene.add(sprite);
+
+    // Trail
+    const positions = new Float32Array(TRAIL_LENGTH * 3);
+    const trailGeo  = new THREE.BufferGeometry();
+    trailGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    trailGeo.setDrawRange(0, 0);
+    const trailMat  = new THREE.LineBasicMaterial({ color: col, transparent: true, opacity: 0.35, linewidth: 1 });
+    const trail     = new THREE.Line(trailGeo, trailMat);
+    scene.add(trail);
+
+    bodies3D.push({ mesh, glow: sprite, trail, trailPositions: positions, trailCount: 0 });
+  });
+
+  trailData = [[], [], []];
+}
+
+// ── Parse CSV ─────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines  = text.trim().split('\n');
+  const frames = [];
+  for (let i = 1; i < lines.length; i++) {
+    const v = lines[i].split(',').map(Number);
+    if (v.length < 9) continue;
+    frames.push([
+      [v[0], v[1], v[2]],
+      [v[3], v[4], v[5]],
+      [v[6], v[7], v[8]]
+    ]);
+  }
+  return frames;
+}
+
+// ── Normalize frames to fit nicely in view ────────────────────
+function normalizeFrames(frames) {
+  let maxR = 0;
+  frames.forEach(f => f.forEach(p => {
+    const r = Math.sqrt(p[0]*p[0]+p[1]*p[1]+p[2]*p[2]);
+    if (r > maxR) maxR = r;
+  }));
+  const scale = maxR > 0 ? 1.8 / maxR : 1;
+  return frames.map(f => f.map(p => [p[0]*scale, p[1]*scale, p[2]*scale]));
+}
+
+// ── Load scenario ─────────────────────────────────────────────
+async function loadScenario(name) {
+  // Update buttons
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  animRunning = false;
+  setLoadingText('LOADING ' + name.toUpperCase());
+  setLoadingBar(10);
+
+  try {
+    const res  = await fetch(name + '.csv');
+    setLoadingBar(50);
+    const text = await res.text();
+    setLoadingBar(80);
+    allFrames  = normalizeFrames(parseCSV(text));
+    frameIndex = 0;
+    buildBodies();
+    setLoadingBar(100);
+    setTimeout(() => { animRunning = true; }, 200);
+  } catch(e) {
+    setLoadingText('ERROR: PLACE CSV FILES IN SAME FOLDER AS THIS HTML');
+    console.error(e);
+  }
+}
+
+function setLoadingBar(pct) {
+  document.getElementById('loading-bar').style.width = pct + '%';
+}
+function setLoadingText(t) {
+  document.getElementById('loading-text').textContent = t;
+}
+
+// ── Animation loop ────────────────────────────────────────────
+function animate() {
+  requestAnimationFrame(animate);
+  updateCamera();
+
+  if (animRunning && allFrames.length > 0) {
+    const speed = parseInt(speedSlider.value);
+
+    for (let s = 0; s < speed; s++) {
+      const frame = allFrames[frameIndex % allFrames.length];
+      frameIndex++;
+
+      frame.forEach((pos, i) => {
+        const b = bodies3D[i];
+
+        // Update position
+        b.mesh.position.set(pos[0], pos[1], pos[2]);
+        b.glow.position.set(pos[0], pos[1], pos[2]);
+
+        // Update trail
+        trailData[i].push([...pos]);
+        if (trailData[i].length > TRAIL_LENGTH) trailData[i].shift();
+
+        const pts = b.trailPositions;
+        const len = trailData[i].length;
+        for (let t = 0; t < len; t++) {
+          pts[t*3]   = trailData[i][t][0];
+          pts[t*3+1] = trailData[i][t][1];
+          pts[t*3+2] = trailData[i][t][2];
+        }
+        b.trail.geometry.attributes.position.needsUpdate = true;
+        b.trail.geometry.setDrawRange(0, len);
+      });
+    }
+  }
+
+  renderer.render(scene, camera);
+}
+
+// ── Resize ────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ── Boot ──────────────────────────────────────────────────────
+buildBodies();
+animate();
+
+// Auto-load figure-eight on start
+(async () => {
+  setLoadingText('LOADING FIGURE-EIGHT');
+  setLoadingBar(10);
+  try {
+    const res  = await fetch('figure-eight.csv');
+    setLoadingBar(50);
+    const text = await res.text();
+    setLoadingBar(80);
+    allFrames  = normalizeFrames(parseCSV(text));
+    buildBodies();
+    setLoadingBar(100);
+    setTimeout(() => {
+      document.getElementById('loading').style.opacity = '0';
+      setTimeout(() => document.getElementById('loading').style.display = 'none', 800);
+      animRunning = true;
+    }, 400);
+  } catch(e) {
+    setLoadingText('⚠ PLACE ALL CSV FILES IN THE SAME FOLDER AS THIS HTML FILE');
+  }
+})();
+</script>
+</body>
+</html>
