@@ -1,6 +1,6 @@
 # Gravitational Simulations
 
-A real-time 3D gravitational simulation of the three-body problem, built from scratch in **C++** and visualized in the browser with **Three.js**.
+A real-time 3D gravitational simulation of the three-body problem, built in **C++** and visualized in the browser with **Three.js**.
 
  **[Live Demo](https://mugiln.github.io/gravitational-simulations)** 
 
@@ -10,7 +10,7 @@ A real-time 3D gravitational simulation of the three-body problem, built from sc
 
 The three-body problem asks: given three masses in space pulling on each other through gravity, how do they move over time?
 
-Unlike the two-body problem (e.g. Earth orbiting the Sun), the three-body problem has **no general closed-form solution**. The motion is highly sensitive to initial conditions — a tiny change can produce completely different trajectories. This is one of the earliest known examples of **chaos theory**.
+Unlike the two-body problem (e.g. Earth orbiting the Sun), the three-body problem has **no general closed-form solution**. The motion is highly sensitive to initial conditions and a tiny change can produce completely different trajectories. This is one of the earliest known examples of **chaos theory**.
 
 ---
 
@@ -20,13 +20,13 @@ Unlike the two-body problem (e.g. Earth orbiting the Sun), the three-body proble
 Three equal masses chasing each other in a perfect figure-eight. This exact solution was discovered by Chenciner & Montgomery in 2000. It is one of the few known stable periodic orbits of the three-body problem.
 
 ### Lagrange
-Three equal masses sitting at the corners of an equilateral triangle, rotating around their common center of mass. This is Lagrange's 1772 solution — one of the five famous Lagrange points used in spacecraft positioning today (e.g. the James Webb Space Telescope sits at L2).
+Three equal masses sitting at the corners of an equilateral triangle, rotating around their common center of mass. This is Lagrange's 1772 solution, one of the five famous Lagrange points used in spacecraft positioning today (e.g. the James Webb Space Telescope sits at L2).
 
 ### Chaotic
-A perturbed figure-eight — body 3 is nudged slightly out of the orbital plane. The system starts almost ordered, then slowly breaks down into unpredictable, chaotic motion. This demonstrates the **butterfly effect**: a tiny change in initial conditions leads to completely different behavior over time.
+A perturbed figure-eight in which the body 3 is nudged slightly out of the orbital plane. The system starts almost ordered, then slowly breaks down into unpredictable, chaotic motion. This demonstrates the **butterfly effect**: a tiny change in initial conditions leads to completely different behavior over time.
 
 ### Euler
-Three bodies in a collinear configuration (all on a straight line), rotating around their common center of mass. This is Euler's 1767 solution. Unlike Lagrange, this orbit is **unstable** — small perturbations cause it to drift, which is visible in the overlapping trail pattern.
+Three bodies in a collinear configuration (all on a straight line), rotating around their common center of mass. This is Euler's 1767 solution. Unlike Lagrange, this orbit is **unstable**, even small perturbations cause it to drift, which is visible in the overlapping trail pattern.
 
 ---
 
