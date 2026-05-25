@@ -20,7 +20,7 @@ Unlike the two-body problem (e.g. Earth orbiting the Sun), the three-body proble
 Three equal masses chasing each other in a perfect figure-eight. This exact solution was discovered by Chenciner & Montgomery in 2000. It is one of the few known stable periodic orbits of the three-body problem.
 
 ### Lagrange
-Three equal masses sitting at the corners of an equilateral triangle, rotating around their common center of mass. This is Lagrange's 1772 solution, one of the five famous Lagrange points used in spacecraft positioning today (e.g. the James Webb Space Telescope sits at L2).
+Three equal masses sitting at the corners of an equilateral triangle, rotating around their common center of mass. This is Lagrange's 1772 solution.
 
 ### Chaotic
 A perturbed figure-eight in which the body 3 is nudged slightly out of the orbital plane. The system starts almost ordered, then slowly breaks down into unpredictable, chaotic motion. This demonstrates the **butterfly effect**: a tiny change in initial conditions leads to completely different behavior over time.
