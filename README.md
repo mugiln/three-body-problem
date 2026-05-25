@@ -36,7 +36,7 @@ Three bodies in a collinear configuration (all on a straight line), rotating aro
 The simulation is written in C++ using the **Velocity Verlet** integration algorithm, which conserves energy far better than simple Euler integration.
 
 For each time step:
-1. Calculate gravitational acceleration on each body from all others using Newton's law: `a = G * m / r²`
+1. Calculate acceleration on each body from all others using Newton's law: `a = G * m / r²`
 2. Update positions: `x(t+dt) = x(t) + v(t)*dt + 0.5*a(t)*dt²`
 3. Recalculate acceleration at new positions
 4. Update velocities: `v(t+dt) = v(t) + 0.5*(a(t) + a(t+dt))*dt`
