@@ -589,6 +589,7 @@ function buildPotentialSurface(csvText) {
     scene.add(label);
     potentialObjects.push(label);
   });
+}
 // Helper: given a world (x,y) in [-1,1] range, find the surface height
 function getPotentialHeight(x, y, vals, phiMin, phiMax) {
   // Our grid goes from -2 to 2 in C++, so world coords are already in that range
