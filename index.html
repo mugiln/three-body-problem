@@ -533,22 +533,21 @@ function buildPotentialSurface(csvText) {
   }
 
   // Sun and Jupiter — their coords are in [-1,1], plane is [-2,2] so multiply by 2
-  const bodyMarkers = [
-    { name: 'SUN',     x: -mu,       y: 0, color: '#ff4444', size: 0.07  },
-    { name: 'JUPITER', x: 1 - mu,    y: 0, color: '#ffaa00', size: 0.045 },
+ const bodyMarkers = [
+    { name: 'SUN',     x: -mu,       y: 0, color: '#ff4444', size: 0.12, z: 0.8  },
+    { name: 'JUPITER', x: 1 - mu,    y: 0, color: '#ffaa00', size: 0.06, z: 0.3  },
   ];
   bodyMarkers.forEach(b => {
-    const h = getPotentialHeight(b.x, b.y, vals, phiMin, phiMax);
     const bMesh = new THREE.Mesh(
       new THREE.SphereGeometry(b.size, 16, 16),
       new THREE.MeshBasicMaterial({ color: b.color })
     );
-    bMesh.position.set(b.x * 2, b.y * 2, h + 0.08);
+    bMesh.position.set(b.x * 2, b.y * 2, b.z);
     scene.add(bMesh);
     potentialObjects.push(bMesh);
 
     const label = makeLabel(b.name, b.color);
-    label.position.set(b.x * 2, b.y * 2 + 0.18, h + 0.18);
+    label.position.set(b.x * 2, b.y * 2 + 0.22, b.z + 0.22);
     scene.add(label);
     potentialObjects.push(label);
   });
