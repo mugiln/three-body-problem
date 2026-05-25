@@ -1,71 +1,70 @@
-# gravitational simulations
+# Gravitational Simulations
 
-simulating the three-body problem in C++ and rendering it in the browser with Three.js.
+Simulating the three-body problem in C++, visualized in the browser with Three.js.
 
-**[live demo](https://mugiln.github.io/three-body-problem/)**
-
----
-
-## what is the three-body problem?
-
-take three masses in space. they all pull on each other through gravity. how do they move?
-
-turns out there is no general formula. unlike two bodies (earth and sun, clean ellipse, done), three bodies produce motion that is impossibly sensitive to starting conditions. change one position by a millimeter and you get a completely different trajectory a few orbits later. this is one of the earliest known examples of chaos theory.
-
-most of the time the system just flies apart. the scenarios below are the rare cases where something interesting happens.
+**[Live Demo](https://mugiln.github.io/three-body-problem/)**
 
 ---
 
-## scenarios
+## The Three-Body Problem
 
-**figure-eight** -- three equal masses chasing each other in a stable figure-eight loop. discovered by Chenciner and Montgomery in 2000. one of the very few known periodic solutions.
+Take three masses in space pulling on each other through gravity. How do they move?
 
-**lagrange** -- three equal masses at the corners of an equilateral triangle, rotating around their shared center of mass. Lagrange found this in 1772.
+There is no general formula. Two bodies (Earth and Sun) produce a clean ellipse. Add a third and the motion becomes impossible to predict analytically. A tiny change in starting position produces a completely different trajectory a few orbits later. This is one of the earliest known examples of chaos in physics.
 
-**chaotic** -- the figure-eight but with body 3 nudged slightly out of the plane. starts looking almost normal, then falls apart. classic butterfly effect demonstration.
-
-**euler** -- three bodies in a straight line, rotating around their center of mass. Euler's 1767 solution. technically valid but unstable in practice, any small push and it drifts.
-
-**restricted three-body** -- instead of simulating three free bodies, this one fixes the Sun and Jupiter on a circular orbit and asks: what does the gravitational landscape look like for a tiny spacecraft caught between them? the answer is a 3D potential surface with five special equilibrium points called Lagrange points (L1 through L5). L1, L2, L3 sit on the axis between them. L4 and L5 sit 60 degrees ahead and behind Jupiter and are actually stable, which is why the Trojan asteroids cluster there.
+Most configurations just fly apart. The scenarios below are the rare exceptions where something structured happens.
 
 ---
 
-## how it works
+## Scenarios
 
-### physics (C++)
+**Figure-Eight** -- Three equal masses chasing each other in a stable loop. Discovered by Chenciner and Montgomery in 2000, one of the very few known periodic solutions to the three-body problem.
 
-written in C++ using the velocity Verlet integrator. better energy conservation than basic Euler integration.
+**Lagrange** -- Three equal masses at the corners of an equilateral triangle, rotating around their shared center of mass. Found by Lagrange in 1772.
 
-each time step:
-1. compute acceleration on each body from all others: `a = G * m / r^2`
-2. update positions: `x(t+dt) = x(t) + v(t)*dt + 0.5*a(t)*dt^2`
-3. recompute acceleration at new positions
-4. update velocities: `v(t+dt) = v(t) + 0.5*(a(t) + a(t+dt))*dt`
+**Chaotic** -- The figure-eight with one body nudged slightly out of the orbital plane. Starts looking nearly periodic, then breaks down. A straightforward demonstration of sensitive dependence on initial conditions.
 
-outputs trajectory data as CSV files, one per scenario.
+**Euler** -- Three bodies on a straight line, rotating around their center of mass. Euler's 1767 solution. Valid but unstable; any small disturbance causes it to drift, which shows up in the trail pattern.
 
-for the restricted three-body scenario, a separate file computes the effective gravitational potential on a 300x300 grid in the co-rotating frame:
+**Restricted Three-Body** -- The Sun and Jupiter are fixed on a circular orbit. A spacecraft sits in their combined gravitational field. This scenario computes what that field looks like as a surface, with five equilibrium points (L1 through L5) marked on it. L1, L2, L3 lie on the Sun-Jupiter axis. L4 and L5 sit 60 degrees ahead and behind Jupiter. The Trojan asteroids cluster at L4 and L5 because those two points are gravitationally stable.
+
+---
+
+## How It Works
+
+### Physics (C++)
+
+Uses the velocity Verlet integration method, which conserves energy significantly better than basic Euler integration.
+
+Each time step:
+1. Compute acceleration on each body from all others: `a = G * m / r^2`
+2. Update positions: `x(t+dt) = x(t) + v(t)*dt + 0.5*a(t)*dt^2`
+3. Recompute acceleration at new positions
+4. Update velocities: `v(t+dt) = v(t) + 0.5*(a(t) + a(t+dt))*dt`
+
+Each scenario outputs a CSV file of trajectory data.
+
+For the restricted three-body scenario, a separate file computes the effective gravitational potential on a 300x300 grid in the rotating reference frame:
 
 ```
-phi_eff = -G*M_sun/r1 - G*M_jup/r2 - 0.5*omega^2*(x^2+y^2)
+phi = -G*M_sun/r1 - G*M_jup/r2 - 0.5*omega^2*(x^2 + y^2)
 ```
 
-the third term is the centrifugal contribution from the rotating frame. output is `potential.csv`.
+The third term accounts for the centrifugal effect of the rotating frame. Output is `potential.csv`.
 
-### visualizer (Three.js)
+### Visualizer (Three.js)
 
-one `index.html` file handles everything:
+A single `index.html` handles everything:
 
-- glowing balls with radial gradient sprites
-- fading trail lines for trajectory history
-- starfield background
-- drag to rotate, scroll to zoom
-- adjustable playback speed
-- restricted three-body view renders the potential as a colored 3D surface with L1-L5 marked directly on it
+- Glowing bodies with fading trail lines
+- Starfield background
+- Drag to rotate, scroll to zoom
+- Adjustable playback speed
+- Restricted three-body view renders the potential as a colored 3D surface with L1-L5 labeled directly on it
 
 ---
 
-## project structure
+## Project Structure
 
 ```
 three-body-problem/
@@ -85,34 +84,34 @@ three-body-problem/
 
 ---
 
-## running locally
+## Running Locally
 
-compile and run the C++ simulation:
+Compile and run the C++ simulation:
 
 ```bash
 g++ -O2 -o sim threebodyproblem.cpp
 ./sim
 ```
 
-serve the visualizer:
+Serve the visualizer:
 
 ```bash
 python -m http.server 8000
 ```
 
-then open `http://localhost:8000`.
+Open `http://localhost:8000` in your browser.
 
 ---
 
-## stack
+## Stack
 
-- C++ for physics and potential computation
+- C++ for physics simulation and potential computation
 - Three.js for 3D WebGL rendering
 - GitHub Pages for hosting
 
 ---
 
-## references
+## References
 
 - Chenciner & Montgomery (2000), figure-eight solution
 - Lagrange (1772), equilateral triangle solution
