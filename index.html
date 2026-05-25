@@ -83,13 +83,12 @@
 
   .body-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-  /* ── NEW: Lagrange point labels ───────────────────────── */
   #lagrange-info {
     position: fixed;
     top: 80px;
     left: 32px;
     z-index: 10;
-    display: none;           /* hidden until potential view loads */
+    display: none;
     flex-direction: column;
     gap: 8px;
   }
@@ -99,7 +98,6 @@
     letter-spacing: 0.12em;
     opacity: 0.75;
   }
-  /* ─────────────────────────────────────────────────────── */
 
   #loading {
     position: fixed;
@@ -173,14 +171,12 @@
 
 <div id="title">THREE · BODY · PROBLEM</div>
 
-<!-- Existing body indicators -->
 <div id="info">
   <div class="body-indicator"><div class="body-dot" style="background:#ff4444;box-shadow:0 0 8px #ff4444"></div>BODY 01</div>
   <div class="body-indicator"><div class="body-dot" style="background:#44ff88;box-shadow:0 0 8px #44ff88"></div>BODY 02</div>
   <div class="body-indicator"><div class="body-dot" style="background:#4488ff;box-shadow:0 0 8px #4488ff"></div>BODY 03</div>
 </div>
 
-<!-- ── NEW: Lagrange point legend ──────────────────────────── -->
 <div id="lagrange-info">
   <div class="l-label" style="color:#ff4444">● SUN</div>
   <div class="l-label" style="color:#ffaa00">● JUPITER</div>
@@ -190,7 +186,6 @@
   <div class="l-label" style="color:#aaffcc">✦ L4 — 60° ahead of Jupiter</div>
   <div class="l-label" style="color:#aaffcc">✦ L5 — 60° behind Jupiter</div>
 </div>
-<!-- ─────────────────────────────────────────────────────────── -->
 
 <div id="speed-wrap">
   <div id="speed-label">PLAYBACK SPEED</div>
@@ -202,7 +197,6 @@
   <button class="btn" onclick="loadScenario('lagrange')">LAGRANGE</button>
   <button class="btn" onclick="loadScenario('chaotic')">CHAOTIC</button>
   <button class="btn" onclick="loadScenario('euler')">EULER</button>
-  <!-- ── NEW button ── -->
   <button class="btn" onclick="loadPotential()">RESTRICTED 3-BODY</button>
 </div>
 
@@ -210,6 +204,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+
 // ── Scene setup ──────────────────────────────────────────────
 const container = document.getElementById('canvas-container');
 const renderer  = new THREE.WebGLRenderer({ antialias: true });
@@ -230,7 +225,7 @@ for (let i = 0; i < 6000; i++) {
 starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVerts, 3));
 scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.12, transparent: true, opacity: 0.5 })));
 
-// ── Orbit controls (manual) ───────────────────────────────────
+// ── Orbit controls ────────────────────────────────────────────
 let isDragging = false, prevMouse = {x:0, y:0};
 let spherical = { theta: 0, phi: Math.PI/2, r: 5 };
 
@@ -345,11 +340,9 @@ async function loadScenario(name) {
   document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
 
-  // ── NEW: hide potential view, show body indicators ──
   clearPotentialScene();
   document.getElementById('info').style.display          = 'flex';
   document.getElementById('lagrange-info').style.display = 'none';
-  // ───────────────────────────────────────────────────
 
   animRunning = false;
   setLoadingText('LOADING ' + name.toUpperCase());
@@ -374,10 +367,7 @@ async function loadScenario(name) {
 function setLoadingBar(pct) { document.getElementById('loading-bar').style.width = pct + '%'; }
 function setLoadingText(t)  { document.getElementById('loading-text').textContent = t; }
 
-
-// ── NEW: Potential surface ────────────────────────────────────
-
-// Objects we need to remove when switching away
+// ── Potential surface ─────────────────────────────────────────
 let potentialObjects = [];
 
 function clearPotentialScene() {
@@ -385,18 +375,44 @@ function clearPotentialScene() {
   potentialObjects = [];
 }
 
+// Make a canvas text label sprite
+function makeLabel(text, color) {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 64;
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, 256, 64);
+  ctx.font = 'bold 28px monospace';
+  ctx.fillStyle = color;
+  ctx.fillText(text, 8, 40);
+  const tex = new THREE.CanvasTexture(c);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(0.7, 0.18, 1);
+  return sprite;
+}
+
+// Given a grid (x,y) in the C++ range [-2,2], find the surface height
+function getPotentialHeight(x, y, vals, phiMin, phiMax) {
+  const N     = 300;
+  const range = 2.0;
+  const i   = Math.round((x + range) / (2 * range) * (N - 1));
+  const j   = Math.round((y + range) / (2 * range) * (N - 1));
+  const idx = Math.min(Math.max(i * N + j, 0), vals.length - 1);
+  const phi = vals[idx] ? vals[idx].phi : 0;
+  const t   = (phi - phiMin) / (phiMax - phiMin);
+  return (t - 0.5) * 1.2;
+}
+
 async function loadPotential() {
-  // Button state
   document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
 
-  // Stop body animation, hide bodies, show lagrange legend
   animRunning = false;
   clearPotentialScene();
-  buildBodies();                                              // clears old body meshes
+  buildBodies();
   bodies3D.forEach(b => {
-    b.mesh.visible = false;
-    b.glow.visible = false;
+    b.mesh.visible  = false;
+    b.glow.visible  = false;
     b.trail.visible = false;
   });
   document.getElementById('info').style.display          = 'none';
@@ -413,11 +429,9 @@ async function loadPotential() {
     buildPotentialSurface(text);
     setLoadingBar(100);
 
-    // Tilt camera to a nice angle for the 3D surface
     spherical.phi   = Math.PI / 3.5;
     spherical.theta = 0.4;
     spherical.r     = 6;
-
   } catch(e) {
     setLoadingText('ERROR: PLACE potential.csv IN SAME FOLDER AS THIS HTML');
     console.error(e);
@@ -425,11 +439,9 @@ async function loadPotential() {
 }
 
 function buildPotentialSurface(csvText) {
-  // ── 1. Parse the CSV into a flat array of {x, y, phi} ──
   const lines = csvText.trim().split('\n');
-  const N = 300;   // must match what C++ wrote
+  const N = 300;
 
-  // Read all values, find min/max for color mapping
   const vals = [];
   for (let i = 1; i < lines.length; i++) {
     const [x, y, phi] = lines[i].split(',').map(Number);
@@ -439,25 +451,17 @@ function buildPotentialSurface(csvText) {
   const phiMin = Math.min(...vals.map(v => v.phi));
   const phiMax = Math.max(...vals.map(v => v.phi));
 
-  // ── 2. Build a PlaneGeometry — a flat N×N grid ──
-  // PlaneGeometry(width, height, widthSegments, heightSegments)
-  // widthSegments = N-1 means N vertices along each axis
-  const geo = new THREE.PlaneGeometry(4, 4, N - 1, N - 1);
-
-  // PlaneGeometry lies in the XY plane by default.
-  // Its vertices are stored row by row in position array.
-  // We'll use Z as the "height" = potential value.
-  const pos    = geo.attributes.position;        // x,y,z for every vertex
-  const colors = new Float32Array(pos.count * 3); // RGB for every vertex
+  // Build surface geometry
+  const geo    = new THREE.PlaneGeometry(4, 4, N - 1, N - 1);
+  const pos    = geo.attributes.position;
+  const colors = new Float32Array(pos.count * 3);
 
   for (let i = 0; i < pos.count; i++) {
     const phi = vals[i] ? vals[i].phi : 0;
+    const t   = (phi - phiMin) / (phiMax - phiMin);
+    pos.setZ(i, (t - 0.5) * 1.2);
 
-    // Height: scale potential into a visible range
-    const t = (phi - phiMin) / (phiMax - phiMin);   // 0 = lowest, 1 = highest
-    pos.setZ(i, (t - 0.5) * 1.2);                   // centered, ±0.6 units tall
-
-    // Color: deep blue (low) → purple → hot pink → white (high)
+    // Color: deep blue → purple → hot pink → white
     const r = Math.min(1, t * 2.5);
     const g = Math.max(0, t - 0.5) * 0.6;
     const b = Math.min(1, 1.2 - t * 1.5);
@@ -467,9 +471,8 @@ function buildPotentialSurface(csvText) {
   }
 
   geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  geo.computeVertexNormals();   // needed for lighting to work correctly
+  geo.computeVertexNormals();
 
-  // ── 3. Material: wireframe overlay + solid surface ──
   const solidMat = new THREE.MeshPhongMaterial({
     vertexColors: true,
     side: THREE.DoubleSide,
@@ -477,7 +480,6 @@ function buildPotentialSurface(csvText) {
     transparent: true,
     opacity: 0.85,
   });
-
   const wireMat = new THREE.MeshBasicMaterial({
     color: 0xffffff,
     wireframe: true,
@@ -487,56 +489,49 @@ function buildPotentialSurface(csvText) {
 
   const solidMesh = new THREE.Mesh(geo, solidMat);
   const wireMesh  = new THREE.Mesh(geo, wireMat);
-
   scene.add(solidMesh);
   scene.add(wireMesh);
   potentialObjects.push(solidMesh, wireMesh);
 
-  // ── 4. Lighting for the surface ──
+  // Lighting
   const ambient = new THREE.AmbientLight(0xffffff, 0.4);
   const point1  = new THREE.PointLight(0xffffff, 1.2, 20);
   point1.position.set(2, 3, 2);
   const point2  = new THREE.PointLight(0x8844ff, 0.8, 20);
   point2.position.set(-2, -1, 2);
-
   scene.add(ambient, point1, point2);
   potentialObjects.push(ambient, point1, point2);
 
-  // ── 5. Mark the 5 Lagrange points ──
-  // These are the known positions in the co-rotating frame
-  // mu ≈ 0.001 (Jupiter/total mass), so positions are nearly textbook values
   const mu = 0.001;
 
-  // L1, L2, L3 lie on the x-axis; L4, L5 form equilateral triangles
-  const lagrangePoints = [
-    { name: 'L1', x:  (1 - Math.cbrt(mu/3)),          y: 0,           color: 0xffffff },
-    { name: 'L2', x:  (1 + Math.cbrt(mu/3)),          y: 0,           color: 0xffffff },
-    { name: 'L3', x: -(1 + 5*mu/12),                  y: 0,           color: 0xffffff },
-    { name: 'L4', x:  0.5 - mu,                        y:  Math.sqrt(3)/2, color: 0xaaffcc },
-    { name: 'L5', x:  0.5 - mu,                        y: -Math.sqrt(3)/2, color: 0xaaffcc },
-  ];
-
- // Helper: make a canvas text label sprite
-  function makeLabel(text, color) {
-    const c = document.createElement('canvas');
-    c.width = 256; c.height = 64;
-    const ctx = c.getContext('2d');
-    ctx.clearRect(0, 0, 256, 64);
-    ctx.font = 'bold 28px "Share Tech Mono", monospace';
-    ctx.fillStyle = color;
-    ctx.fillText(text, 8, 40);
-    const tex = new THREE.CanvasTexture(c);
-    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
-    const sprite = new THREE.Sprite(mat);
-    sprite.scale.set(0.8, 0.2, 1);
-    return sprite;
-  }
-
+  // Sun and Jupiter — fixed Z so they float above their gravity wells
   const bodyMarkers = [
-    { name: 'SUN',     x: -mu,       y: 0, color: '#ff4444', size: 0.12, z: 0.8  },
-    { name: 'JUPITER', x: 1 - mu,    y: 0, color: '#ffaa00', size: 0.06, z: 0.3  },
+    { name: 'SUN',     x: -mu,      y: 0, color: '#ff4444', size: 0.12, z: 0.8  },
+    { name: 'JUPITER', x: 1 - mu,   y: 0, color: '#ffaa00', size: 0.06, z: 0.3  },
   ];
+
   bodyMarkers.forEach(b => {
+    // Glow sprite
+    const gc   = document.createElement('canvas');
+    gc.width   = gc.height = 128;
+    const gctx = gc.getContext('2d');
+    const grad = gctx.createRadialGradient(64,64,4,64,64,64);
+    grad.addColorStop(0,   b.color);
+    grad.addColorStop(0.3, b.color + 'cc');
+    grad.addColorStop(1,   'transparent');
+    gctx.fillStyle = grad;
+    gctx.fillRect(0,0,128,128);
+    const glowSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(gc),
+      transparent: true, opacity: 1.0, depthWrite: false
+    }));
+    const glowSize = b.name === 'SUN' ? 0.7 : 0.4;
+    glowSprite.scale.set(glowSize, glowSize, 1);
+    glowSprite.position.set(b.x * 2, b.y * 2, b.z);
+    scene.add(glowSprite);
+    potentialObjects.push(glowSprite);
+
+    // Solid sphere
     const bMesh = new THREE.Mesh(
       new THREE.SphereGeometry(b.size, 16, 16),
       new THREE.MeshBasicMaterial({ color: b.color })
@@ -545,14 +540,25 @@ function buildPotentialSurface(csvText) {
     scene.add(bMesh);
     potentialObjects.push(bMesh);
 
+    // Label
     const label = makeLabel(b.name, b.color);
-    label.position.set(b.x * 2, b.y * 2 + 0.22, b.z + 0.22);
+    label.position.set(b.x * 2, b.y * 2 + 0.25, b.z + 0.25);
     scene.add(label);
     potentialObjects.push(label);
   });
-  // Lagrange points
+
+  // Lagrange points — placed on the surface
+  const lagrangePoints = [
+    { name: 'L1', x:  (1 - Math.cbrt(mu/3)),      y:  0,                color: 0xffffff },
+    { name: 'L2', x:  (1 + Math.cbrt(mu/3)),      y:  0,                color: 0xffffff },
+    { name: 'L3', x: -(1 + 5*mu/12),              y:  0,                color: 0xffffff },
+    { name: 'L4', x:  0.5 - mu,                   y:  Math.sqrt(3)/2,   color: 0xaaffcc },
+    { name: 'L5', x:  0.5 - mu,                   y: -Math.sqrt(3)/2,   color: 0xaaffcc },
+  ];
+
   lagrangePoints.forEach(lp => {
     const height = getPotentialHeight(lp.x, lp.y, vals, phiMin, phiMax);
+    const hexColor = '#' + lp.color.toString(16).padStart(6, '0');
 
     // Marker sphere
     const marker = new THREE.Mesh(
@@ -568,9 +574,8 @@ function buildPotentialSurface(csvText) {
     gc.width   = gc.height = 64;
     const gctx = gc.getContext('2d');
     const grad = gctx.createRadialGradient(32,32,2,32,32,32);
-    const hex  = '#' + lp.color.toString(16).padStart(6,'0');
-    grad.addColorStop(0,   hex);
-    grad.addColorStop(0.4, hex + '88');
+    grad.addColorStop(0,   hexColor);
+    grad.addColorStop(0.4, hexColor + '88');
     grad.addColorStop(1,   'transparent');
     gctx.fillStyle = grad;
     gctx.fillRect(0,0,64,64);
@@ -584,28 +589,12 @@ function buildPotentialSurface(csvText) {
     potentialObjects.push(glow);
 
     // Text label
-    const label = makeLabel(lp.name, '#' + lp.color.toString(16).padStart(6,'0'));
-    label.position.set(lp.x * 2, lp.y * 2 + 0.18, height + 0.15);
+    const label = makeLabel(lp.name, hexColor);
+    label.position.set(lp.x * 2, lp.y * 2 + 0.18, height + 0.18);
     scene.add(label);
     potentialObjects.push(label);
   });
 }
-// Helper: given a world (x,y) in [-1,1] range, find the surface height
-function getPotentialHeight(x, y, vals, phiMin, phiMax) {
-  // Our grid goes from -2 to 2 in C++, so world coords are already in that range
-  // Map to grid index
-  const N     = 300;
-  const range = 2.0;
-  const i = Math.round((x + range) / (2 * range) * (N - 1));
-  const j = Math.round((y + range) / (2 * range) * (N - 1));
-  const idx = Math.min(Math.max(i * N + j, 0), vals.length - 1);
-  const phi = vals[idx] ? vals[idx].phi : 0;
-  const t   = (phi - phiMin) / (phiMax - phiMin);
-  return (t - 0.5) * 1.2;
-}
-
-// ─────────────────────────────────────────────────────────────
-
 
 // ── Animation loop ────────────────────────────────────────────
 function animate() {
@@ -674,6 +663,7 @@ animate();
     setLoadingText('⚠ PLACE ALL CSV FILES IN THE SAME FOLDER AS THIS HTML FILE');
   }
 })();
+
 </script>
 </body>
 </html>
