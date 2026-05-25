@@ -18,12 +18,8 @@
     width: 100vw;
   }
 
-  #canvas-container {
-    position: fixed;
-    inset: 0;
-  }
+  #canvas-container { position: fixed; inset: 0; }
 
-  /* Top title */
   #title {
     position: fixed;
     top: 28px;
@@ -39,7 +35,6 @@
     white-space: nowrap;
   }
 
-  /* Scenario buttons */
   #controls {
     position: fixed;
     bottom: 36px;
@@ -64,19 +59,9 @@
     backdrop-filter: blur(8px);
   }
 
-  .btn:hover {
-    border-color: rgba(255,255,255,0.6);
-    color: #fff;
-  }
+  .btn:hover  { border-color: rgba(255,255,255,0.6); color: #fff; }
+  .btn.active { border-color: #fff; color: #fff; background: rgba(255,255,255,0.08); box-shadow: 0 0 18px rgba(255,255,255,0.15); }
 
-  .btn.active {
-    border-color: #fff;
-    color: #fff;
-    background: rgba(255,255,255,0.08);
-    box-shadow: 0 0 18px rgba(255,255,255,0.15);
-  }
-
-  /* Info panel */
   #info {
     position: fixed;
     top: 80px;
@@ -96,13 +81,26 @@
     opacity: 0.8;
   }
 
-  .body-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+  .body-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── NEW: Lagrange point labels ───────────────────────── */
+  #lagrange-info {
+    position: fixed;
+    top: 80px;
+    left: 32px;
+    z-index: 10;
+    display: none;           /* hidden until potential view loads */
+    flex-direction: column;
+    gap: 8px;
   }
 
-  /* Loading */
+  .l-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    opacity: 0.75;
+  }
+  /* ─────────────────────────────────────────────────────── */
+
   #loading {
     position: fixed;
     inset: 0;
@@ -116,33 +114,11 @@
     transition: opacity 0.8s;
   }
 
-  #loading h2 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.4rem;
-    letter-spacing: 0.3em;
-    font-weight: 400;
-  }
+  #loading h2 { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 400; }
+  #loading-bar-wrap { width: 260px; height: 1px; background: rgba(255,255,255,0.1); }
+  #loading-bar { height: 1px; background: #fff; width: 0%; transition: width 0.3s; }
+  #loading-text { font-size: 0.65rem; letter-spacing: 0.2em; color: rgba(255,255,255,0.4); }
 
-  #loading-bar-wrap {
-    width: 260px;
-    height: 1px;
-    background: rgba(255,255,255,0.1);
-  }
-
-  #loading-bar {
-    height: 1px;
-    background: #fff;
-    width: 0%;
-    transition: width 0.3s;
-  }
-
-  #loading-text {
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    color: rgba(255,255,255,0.4);
-  }
-
-  /* hint */
   #hint {
     position: fixed;
     bottom: 90px;
@@ -155,7 +131,6 @@
     white-space: nowrap;
   }
 
-  /* Speed control */
   #speed-wrap {
     position: fixed;
     top: 80px;
@@ -167,11 +142,7 @@
     align-items: flex-end;
   }
 
-  #speed-label {
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    color: rgba(255,255,255,0.35);
-  }
+  #speed-label { font-size: 0.6rem; letter-spacing: 0.15em; color: rgba(255,255,255,0.35); }
 
   #speed-slider {
     -webkit-appearance: none;
@@ -183,8 +154,7 @@
 
   #speed-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 10px;
-    height: 10px;
+    width: 10px; height: 10px;
     border-radius: 50%;
     background: #fff;
     cursor: pointer;
@@ -203,11 +173,24 @@
 
 <div id="title">THREE · BODY · PROBLEM</div>
 
+<!-- Existing body indicators -->
 <div id="info">
   <div class="body-indicator"><div class="body-dot" style="background:#ff4444;box-shadow:0 0 8px #ff4444"></div>BODY 01</div>
   <div class="body-indicator"><div class="body-dot" style="background:#44ff88;box-shadow:0 0 8px #44ff88"></div>BODY 02</div>
   <div class="body-indicator"><div class="body-dot" style="background:#4488ff;box-shadow:0 0 8px #4488ff"></div>BODY 03</div>
 </div>
+
+<!-- ── NEW: Lagrange point legend ──────────────────────────── -->
+<div id="lagrange-info">
+  <div class="l-label" style="color:#ff4444">● SUN</div>
+  <div class="l-label" style="color:#ffaa00">● JUPITER</div>
+  <div class="l-label" style="color:#ffffff">✦ L1 — between Sun &amp; Jupiter</div>
+  <div class="l-label" style="color:#ffffff">✦ L2 — beyond Jupiter</div>
+  <div class="l-label" style="color:#ffffff">✦ L3 — opposite Jupiter</div>
+  <div class="l-label" style="color:#aaffcc">✦ L4 — 60° ahead of Jupiter</div>
+  <div class="l-label" style="color:#aaffcc">✦ L5 — 60° behind Jupiter</div>
+</div>
+<!-- ─────────────────────────────────────────────────────────── -->
 
 <div id="speed-wrap">
   <div id="speed-label">PLAYBACK SPEED</div>
@@ -219,6 +202,8 @@
   <button class="btn" onclick="loadScenario('lagrange')">LAGRANGE</button>
   <button class="btn" onclick="loadScenario('chaotic')">CHAOTIC</button>
   <button class="btn" onclick="loadScenario('euler')">EULER</button>
+  <!-- ── NEW button ── -->
+  <button class="btn" onclick="loadPotential()">RESTRICTED 3-BODY</button>
 </div>
 
 <div id="hint">DRAG TO ROTATE &nbsp;·&nbsp; SCROLL TO ZOOM</div>
@@ -261,7 +246,6 @@ renderer.domElement.addEventListener('mousemove', e => {
 renderer.domElement.addEventListener('wheel', e => {
   spherical.r = Math.max(1, Math.min(20, spherical.r + e.deltaY * 0.005));
 });
-// Touch support
 renderer.domElement.addEventListener('touchstart', e => { isDragging = true; prevMouse = {x:e.touches[0].clientX, y:e.touches[0].clientY}; });
 renderer.domElement.addEventListener('touchend',   () => isDragging = false);
 renderer.domElement.addEventListener('touchmove',  e => {
@@ -292,18 +276,15 @@ let animRunning = false;
 let speedSlider = document.getElementById('speed-slider');
 
 function buildBodies() {
-  // Remove old
   bodies3D.forEach(b => { scene.remove(b.mesh); scene.remove(b.trail); scene.remove(b.glow); });
   bodies3D = [];
 
   COLORS.forEach((col, i) => {
-    // Main sphere
     const geo  = new THREE.SphereGeometry(0.04, 16, 16);
     const mat  = new THREE.MeshBasicMaterial({ color: col });
     const mesh = new THREE.Mesh(geo, mat);
     scene.add(mesh);
 
-    // Glow sprite
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = 64;
     const ctx = canvas.getContext('2d');
@@ -319,7 +300,6 @@ function buildBodies() {
     sprite.scale.set(0.35, 0.35, 1);
     scene.add(sprite);
 
-    // Trail
     const positions = new Float32Array(TRAIL_LENGTH * 3);
     const trailGeo  = new THREE.BufferGeometry();
     trailGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -350,7 +330,6 @@ function parseCSV(text) {
   return frames;
 }
 
-// ── Normalize frames to fit nicely in view ────────────────────
 function normalizeFrames(frames) {
   let maxR = 0;
   frames.forEach(f => f.forEach(p => {
@@ -363,9 +342,14 @@ function normalizeFrames(frames) {
 
 // ── Load scenario ─────────────────────────────────────────────
 async function loadScenario(name) {
-  // Update buttons
   document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
+
+  // ── NEW: hide potential view, show body indicators ──
+  clearPotentialScene();
+  document.getElementById('info').style.display          = 'flex';
+  document.getElementById('lagrange-info').style.display = 'none';
+  // ───────────────────────────────────────────────────
 
   animRunning = false;
   setLoadingText('LOADING ' + name.toUpperCase());
@@ -387,12 +371,221 @@ async function loadScenario(name) {
   }
 }
 
-function setLoadingBar(pct) {
-  document.getElementById('loading-bar').style.width = pct + '%';
+function setLoadingBar(pct) { document.getElementById('loading-bar').style.width = pct + '%'; }
+function setLoadingText(t)  { document.getElementById('loading-text').textContent = t; }
+
+
+// ── NEW: Potential surface ────────────────────────────────────
+
+// Objects we need to remove when switching away
+let potentialObjects = [];
+
+function clearPotentialScene() {
+  potentialObjects.forEach(obj => scene.remove(obj));
+  potentialObjects = [];
 }
-function setLoadingText(t) {
-  document.getElementById('loading-text').textContent = t;
+
+async function loadPotential() {
+  // Button state
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  // Stop body animation, hide bodies, show lagrange legend
+  animRunning = false;
+  clearPotentialScene();
+  buildBodies();                                              // clears old body meshes
+  bodies3D.forEach(b => {
+    b.mesh.visible = false;
+    b.glow.visible = false;
+    b.trail.visible = false;
+  });
+  document.getElementById('info').style.display          = 'none';
+  document.getElementById('lagrange-info').style.display = 'flex';
+
+  setLoadingText('LOADING POTENTIAL SURFACE');
+  setLoadingBar(10);
+
+  try {
+    const res  = await fetch('potential.csv');
+    setLoadingBar(40);
+    const text = await res.text();
+    setLoadingBar(70);
+    buildPotentialSurface(text);
+    setLoadingBar(100);
+
+    // Tilt camera to a nice angle for the 3D surface
+    spherical.phi   = Math.PI / 3.5;
+    spherical.theta = 0.4;
+    spherical.r     = 6;
+
+  } catch(e) {
+    setLoadingText('ERROR: PLACE potential.csv IN SAME FOLDER AS THIS HTML');
+    console.error(e);
+  }
 }
+
+function buildPotentialSurface(csvText) {
+  // ── 1. Parse the CSV into a flat array of {x, y, phi} ──
+  const lines = csvText.trim().split('\n');
+  const N = 300;   // must match what C++ wrote
+
+  // Read all values, find min/max for color mapping
+  const vals = [];
+  for (let i = 1; i < lines.length; i++) {
+    const [x, y, phi] = lines[i].split(',').map(Number);
+    vals.push({ x, y, phi });
+  }
+
+  const phiMin = Math.min(...vals.map(v => v.phi));
+  const phiMax = Math.max(...vals.map(v => v.phi));
+
+  // ── 2. Build a PlaneGeometry — a flat N×N grid ──
+  // PlaneGeometry(width, height, widthSegments, heightSegments)
+  // widthSegments = N-1 means N vertices along each axis
+  const geo = new THREE.PlaneGeometry(4, 4, N - 1, N - 1);
+
+  // PlaneGeometry lies in the XY plane by default.
+  // Its vertices are stored row by row in position array.
+  // We'll use Z as the "height" = potential value.
+  const pos    = geo.attributes.position;        // x,y,z for every vertex
+  const colors = new Float32Array(pos.count * 3); // RGB for every vertex
+
+  for (let i = 0; i < pos.count; i++) {
+    const phi = vals[i] ? vals[i].phi : 0;
+
+    // Height: scale potential into a visible range
+    const t = (phi - phiMin) / (phiMax - phiMin);   // 0 = lowest, 1 = highest
+    pos.setZ(i, (t - 0.5) * 1.2);                   // centered, ±0.6 units tall
+
+    // Color: deep blue (low) → purple → hot pink → white (high)
+    const r = Math.min(1, t * 2.5);
+    const g = Math.max(0, t - 0.5) * 0.6;
+    const b = Math.min(1, 1.2 - t * 1.5);
+    colors[i*3]   = r;
+    colors[i*3+1] = g;
+    colors[i*3+2] = b;
+  }
+
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  geo.computeVertexNormals();   // needed for lighting to work correctly
+
+  // ── 3. Material: wireframe overlay + solid surface ──
+  const solidMat = new THREE.MeshPhongMaterial({
+    vertexColors: true,
+    side: THREE.DoubleSide,
+    shininess: 60,
+    transparent: true,
+    opacity: 0.85,
+  });
+
+  const wireMat = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.06,
+  });
+
+  const solidMesh = new THREE.Mesh(geo, solidMat);
+  const wireMesh  = new THREE.Mesh(geo, wireMat);
+
+  scene.add(solidMesh);
+  scene.add(wireMesh);
+  potentialObjects.push(solidMesh, wireMesh);
+
+  // ── 4. Lighting for the surface ──
+  const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+  const point1  = new THREE.PointLight(0xffffff, 1.2, 20);
+  point1.position.set(2, 3, 2);
+  const point2  = new THREE.PointLight(0x8844ff, 0.8, 20);
+  point2.position.set(-2, -1, 2);
+
+  scene.add(ambient, point1, point2);
+  potentialObjects.push(ambient, point1, point2);
+
+  // ── 5. Mark the 5 Lagrange points ──
+  // These are the known positions in the co-rotating frame
+  // mu ≈ 0.001 (Jupiter/total mass), so positions are nearly textbook values
+  const mu = 0.001;
+
+  // L1, L2, L3 lie on the x-axis; L4, L5 form equilateral triangles
+  const lagrangePoints = [
+    { name: 'L1', x:  (1 - Math.cbrt(mu/3)),          y: 0,           color: 0xffffff },
+    { name: 'L2', x:  (1 + Math.cbrt(mu/3)),          y: 0,           color: 0xffffff },
+    { name: 'L3', x: -(1 + 5*mu/12),                  y: 0,           color: 0xffffff },
+    { name: 'L4', x:  0.5 - mu,                        y:  Math.sqrt(3)/2, color: 0xaaffcc },
+    { name: 'L5', x:  0.5 - mu,                        y: -Math.sqrt(3)/2, color: 0xaaffcc },
+  ];
+
+  lagrangePoints.forEach(lp => {
+    // Find the height of the surface at this (x,y) by looking up the nearest CSV point
+    const height = getPotentialHeight(lp.x, lp.y, vals, phiMin, phiMax);
+
+    // A glowing sphere marker
+    const markerGeo = new THREE.SphereGeometry(0.035, 12, 12);
+    const markerMat = new THREE.MeshBasicMaterial({ color: lp.color });
+    const marker    = new THREE.Mesh(markerGeo, markerMat);
+
+    // x and y map to the plane; z is height (same scaling as surface)
+    // The plane spans [-2,2] in both x and y, matching our C++ grid
+    marker.position.set(lp.x * 2, lp.y * 2, height + 0.05);
+    scene.add(marker);
+    potentialObjects.push(marker);
+
+    // Glow sprite
+    const gc   = document.createElement('canvas');
+    gc.width   = gc.height = 64;
+    const gctx = gc.getContext('2d');
+    const grad = gctx.createRadialGradient(32,32,2,32,32,32);
+    const hex  = '#' + lp.color.toString(16).padStart(6,'0');
+    grad.addColorStop(0,   hex);
+    grad.addColorStop(0.4, hex + '88');
+    grad.addColorStop(1,   'transparent');
+    gctx.fillStyle = grad;
+    gctx.fillRect(0,0,64,64);
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(gc),
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false
+    }));
+    sprite.scale.set(0.3, 0.3, 1);
+    sprite.position.copy(marker.position);
+    scene.add(sprite);
+    potentialObjects.push(sprite);
+
+    // Sun and Jupiter markers
+    const bodies = [
+      { x: -mu,     y: 0, color: 0xff4444, size: 0.07 },  // Sun
+      { x: 1 - mu,  y: 0, color: 0xffaa00, size: 0.045 }, // Jupiter
+    ];
+    bodies.forEach(b => {
+      const h  = getPotentialHeight(b.x, b.y, vals, phiMin, phiMax);
+      const bg = new THREE.SphereGeometry(b.size, 16, 16);
+      const bm = new THREE.MeshBasicMaterial({ color: b.color });
+      const bMesh = new THREE.Mesh(bg, bm);
+      bMesh.position.set(b.x * 2, b.y * 2, h + 0.08);
+      scene.add(bMesh);
+      potentialObjects.push(bMesh);
+    });
+  });
+}
+
+// Helper: given a world (x,y) in [-1,1] range, find the surface height
+function getPotentialHeight(x, y, vals, phiMin, phiMax) {
+  // Our grid goes from -2 to 2 in C++, so world coords are already in that range
+  // Map to grid index
+  const N     = 300;
+  const range = 2.0;
+  const i = Math.round((x + range) / (2 * range) * (N - 1));
+  const j = Math.round((y + range) / (2 * range) * (N - 1));
+  const idx = Math.min(Math.max(i * N + j, 0), vals.length - 1);
+  const phi = vals[idx] ? vals[idx].phi : 0;
+  const t   = (phi - phiMin) / (phiMax - phiMin);
+  return (t - 0.5) * 1.2;
+}
+
+// ─────────────────────────────────────────────────────────────
+
 
 // ── Animation loop ────────────────────────────────────────────
 function animate() {
@@ -408,12 +601,9 @@ function animate() {
 
       frame.forEach((pos, i) => {
         const b = bodies3D[i];
-
-        // Update position
         b.mesh.position.set(pos[0], pos[1], pos[2]);
         b.glow.position.set(pos[0], pos[1], pos[2]);
 
-        // Update trail
         trailData[i].push([...pos]);
         if (trailData[i].length > TRAIL_LENGTH) trailData[i].shift();
 
@@ -444,7 +634,6 @@ window.addEventListener('resize', () => {
 buildBodies();
 animate();
 
-// Auto-load figure-eight on start
 (async () => {
   setLoadingText('LOADING FIGURE-EIGHT');
   setLoadingBar(10);
