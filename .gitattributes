@@ -1,3 +1,4 @@
 *.csv linguist-generated=true
 *.csv linguist-vendored=true
 index.html linguist-documentation=true
+*.py linguist-documentation=true
