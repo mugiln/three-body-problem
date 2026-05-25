@@ -349,7 +349,7 @@ async function loadScenario(name) {
   setLoadingBar(10);
 
   try {
-    const res  = await fetch(name + '.csv');
+    const res  = await fetch('data/' + name + '.csv');
     setLoadingBar(50);
     const text = await res.text();
     setLoadingBar(80);
@@ -422,7 +422,7 @@ async function loadPotential() {
   setLoadingBar(10);
 
   try {
-    const res  = await fetch('potential.csv');
+    const res  = await fetch('data/potential.csv');
     setLoadingBar(40);
     const text = await res.text();
     setLoadingBar(70);
@@ -647,7 +647,7 @@ animate();
   setLoadingText('LOADING FIGURE-EIGHT');
   setLoadingBar(10);
   try {
-    const res  = await fetch('figure-eight.csv');
+    const res  = await fetch('data/figure-eight.csv');
     setLoadingBar(50);
     const text = await res.text();
     setLoadingBar(80);
