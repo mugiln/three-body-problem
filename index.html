@@ -448,9 +448,11 @@ function buildPotentialSurface(csvText) {
     vals.push({ x, y, phi });
   }
 
-  const phiMin = Math.min(...vals.map(v => v.phi));
-  const phiMax = Math.max(...vals.map(v => v.phi));
-
+  let phiMin = Infinity, phiMax = -Infinity;
+  for (let i = 0; i < vals.length; i++) {
+  if (vals[i].phi < phiMin) phiMin = vals[i].phi;
+  if (vals[i].phi > phiMax) phiMax = vals[i].phi;
+  }
   // Build surface geometry
   const geo    = new THREE.PlaneGeometry(3, 3, N - 1, N - 1);
   const pos    = geo.attributes.position;
