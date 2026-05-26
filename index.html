@@ -454,7 +454,7 @@ function buildPotentialSurface(csvText) {
   if (vals[i].phi > phiMax) phiMax = vals[i].phi;
   }
   // Build surface geometry
-  const geo    = new THREE.PlaneGeometry(3, 3, N - 1, N - 1);
+  const geo = new THREE.PlaneGeometry(4, 4, N - 1, N - 1);
   const pos    = geo.attributes.position;
   const colors = new Float32Array(pos.count * 3);
 
