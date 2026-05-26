@@ -393,8 +393,8 @@ function makeLabel(text, color) {
 
 // Given a grid (x,y) in the C++ range [-2,2], find the surface height
 function getPotentialHeight(x, y, vals, phiMin, phiMax) {
-  const N     = 300;
-  const range = 2.0;
+  const N     = 400;
+  const range = 1.5;
   const i   = Math.round((x + range) / (2 * range) * (N - 1));
   const j   = Math.round((y + range) / (2 * range) * (N - 1));
   const idx = Math.min(Math.max(i * N + j, 0), vals.length - 1);
@@ -452,7 +452,7 @@ function buildPotentialSurface(csvText) {
   const phiMax = Math.max(...vals.map(v => v.phi));
 
   // Build surface geometry
-  const geo    = new THREE.PlaneGeometry(4, 4, N - 1, N - 1);
+  const geo    = new THREE.PlaneGeometry(3, 3, N - 1, N - 1);
   const pos    = geo.attributes.position;
   const colors = new Float32Array(pos.count * 3);
 
