@@ -29,7 +29,7 @@ int main() {
     file << "x,y,potential\n";
 
     int N    = 400;          // 400x400 grid = 160,000 points
-    double range = 1.5;      // covers x ∈ [-1.5, 1.5], y ∈ [-1.5, 1.5]
+    double range = 2.0;      // covers x ∈ [-2.0, 2.0], y ∈ [-2.0, 2.0]
 
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
