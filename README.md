@@ -50,7 +50,7 @@ For the restricted three-body scenario, a separate file computes the effective g
 phi = -G*M_sun/r1 - G*M_jup/r2 - 0.5*omega^2*(x^2 + y^2)
 ```
 
-The third term accounts for the centrifugal effect of the rotating frame. Output is `potential.csv`.
+The third term accounts for the centrifugal effect of the rotating frame. 
 
 ### Visualizer (Three.js)
 
@@ -107,7 +107,7 @@ Open `http://localhost:8000` in your browser.
 
 - C++ for physics simulation and potential computation
 - Three.js for 3D WebGL rendering
-- GitHub Pages for hosting
+
 
 ---
 
