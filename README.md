@@ -73,8 +73,10 @@ three-body-problem/
 ├── .gitattributes
 ├── src/
 │   ├── threebodyproblem.cpp
+│   ├── restricted3body.cpp
 │   └── 3bodyandrestricted.py
 └── data/
+    ├── ThreeBodyProblem.pdf
     ├── figure-eight.csv
     ├── lagrange.csv
     ├── chaotic.csv
