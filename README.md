@@ -57,7 +57,6 @@ The third term accounts for the centrifugal effect of the rotating frame.
 A single `index.html` handles everything:
 
 - Glowing bodies with fading trail lines
-- Starfield background
 - Drag to rotate, scroll to zoom
 - Adjustable playback speed
 - Restricted three-body view renders the potential as a colored 3D surface with L1-L5 labeled directly on it
@@ -83,27 +82,6 @@ three-body-problem/
     ├── euler.csv
     └── potential.csv
 ```
-
----
-
-## Running Locally
-
-Compile and run the C++ simulation:
-
-```bash
-g++ -O2 -o sim threebodyproblem.cpp
-./sim
-```
-
-Serve the visualizer:
-
-```bash
-python -m http.server 8000
-```
-
-Open `http://localhost:8000` in your browser.
-
----
 
 ## Stack
 
